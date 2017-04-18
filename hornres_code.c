@@ -17,7 +17,6 @@ void* xmalloc(size_t size){
     }
     return mem;
 }
-
 char* xstrdup(char* str){
     void* newstr = strdup(str);
     if(!newstr)
@@ -36,7 +35,6 @@ term* newTerm(char* payload, termlist* arguments){
 
     return new_term;
 }
-
 termlist* newTermList(term* data){
     termlist* new_termlist = xmalloc(sizeof(termlist));
 
@@ -54,7 +52,6 @@ atom* newAtom(char* payload, termlist* arguments){
 
     return new_atom;
 }
-
 atomlist* newAtomList(atom* data){
     atomlist* new_atomlist = xmalloc(sizeof(atomlist));
 
@@ -72,7 +69,6 @@ formular* newFormular(atom* head, atomlist* body){
 
     return new_formular;
 }
-
 formularlist* newFormularList(formular* data){
     formularlist* new_formularlist = xmalloc(sizeof(formularlist));
 
@@ -88,14 +84,12 @@ termlist* addTermListElem(termlist* anchor, termlist* new_termlist){
 
     return new_termlist;
 }
-
 atomlist* addAtomListElem(atomlist* anchor, atomlist* new_atomlist){
     new_atomlist->next = anchor;
     anchor = new_atomlist;
 
     return new_atomlist;
 }
-
 formularlist* addFormularListElem(formularlist* anchor, formularlist* new_formularlist){
     new_formularlist->next = anchor;
     anchor = new_formularlist;
@@ -120,7 +114,6 @@ void printFormList(formularlist* formlist){
     }
 
 }
-
 void printAtomList(atomlist* atomlist){
     printf("%s", atomlist->data->predicate);
     if(atomlist->data->arguments != NULL) {
@@ -135,7 +128,6 @@ void printAtomList(atomlist* atomlist){
         printAtomList(atomlist->next);
     }
 }
-
 void printAtom(atom* atom){
     printf("%s", atom->predicate );
     if(atom->arguments != NULL)
@@ -145,7 +137,6 @@ void printAtom(atom* atom){
         printf(")");
     }
 }
-
 void printTermList(termlist* termlist){
     printf("%s", termlist->data->varorfunc);
     if(termlist->data->arguments != NULL) {
@@ -171,7 +162,6 @@ void freeFormList(formularlist* formjunk){
     }
     free(formjunk);
 };
-
 void freeAtomList(atomlist* atomjunk) {
     atomlist* next;
 
@@ -186,7 +176,6 @@ void freeAtomList(atomlist* atomjunk) {
         atomjunk = next;
     }
 }
-
 void freeTermList(termlist* termjunk) {
     termlist* next;
 
@@ -201,3 +190,5 @@ void freeTermList(termlist* termjunk) {
         termjunk = next;
     }
 }
+
+
