@@ -1,6 +1,9 @@
 //
 // Created by Hans Potsch on 18.04.17.
 //
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 typedef struct term {
     char* varorfunc;

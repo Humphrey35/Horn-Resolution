@@ -1,23 +1,29 @@
+LEX= flex
+YACC= bison
 CC= gcc
 CFLAGS= -g
 
-all: hornres.tab.c hornres.tab.h lex.yy.c lex.yy.o hornres.tab.o HornRes clean
-
-hornres.tab.c hornres.tab.h: hornres.y hornres.h
-	bison -d hornres.y
+all: lex.yy.c hornres.tab.c hornres.tab.h lex.yy.o hornres.tab.o hornres_code.o HornRes clean
 
 lex.yy.c: hornres.l hornres.tab.h hornres.h
-	flex hornres.l
+	$(LEX) hornres.l
+
+hornres.tab.c hornres.tab.h: hornres.y hornres.h
+	$(YACC) -d hornres.y
 
 lex.yy.o: lex.yy.c
-	$(CC) $(CFLAGS) -c lex.yy.c
+	$(CC) $(CFLAGS) -c -o lex.yy.o lex.yy.c
 
 hornres.tab.o: hornres.tab.c
-	$(CC) $(CFLAGS) -c hornres.tab.c
+	$(CC) $(CFLAGS) -c -o hornres.tab.o hornres.tab.c
 
-HornRes: lex.yy.o hornres.tab.o
-	$(CC) $(CFLAGS) lex.yy.o hornres.tab.o -o HornRes
+hornres_code.o: hornres_code.c hornres.h
+	$(CC) $(CFLAGS) -c -o hornres_code.o hornres_code.c
+
+HornRes: lex.yy.o hornres.tab.o hornres_code.o
+	$(CC) $(CFLAGS) hornres_code.o lex.yy.o hornres.tab.o  -o HornRes
 
 clean:
 	rm hornres.tab.*
 	rm lex.yy.*
+	rm *.o
