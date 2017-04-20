@@ -1,9 +1,6 @@
 //
 // Created by Hans Potsch on 18.04.17.
 //
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 typedef struct term {
     char* varorfunc;
@@ -67,3 +64,10 @@ void printTermList(termlist* termlist);
 void freeFormList(formularlist* formlist);
 void freeAtomList(atomlist* junk);
 void freeTermList(termlist* junk);
+
+atomlist* getQueryAtoms(formularlist* list);
+formularlist* getDefiniteFormulars(formularlist *list);
+
+int checkSLDsatisfiable(atomlist* query_list, formularlist* definite_list);
+int countAtomListElem(atomlist* list);
+int isAtomListEqual(atomlist* query, atomlist* new_query);

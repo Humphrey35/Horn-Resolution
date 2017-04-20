@@ -1,6 +1,9 @@
 //
 // Created by Hans Potsch on 18.04.17.
 //
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "hornres.h"
 
 int yyerror(char* err){
@@ -163,7 +166,7 @@ void freeFormList(formularlist* formjunk){
     free(formjunk);
 };
 void freeAtomList(atomlist* atomjunk) {
-    atomlist* next;
+    atomlist* next = NULL;
 
     while (atomjunk != NULL) {
         next = atomjunk->next;
@@ -177,7 +180,7 @@ void freeAtomList(atomlist* atomjunk) {
     }
 }
 void freeTermList(termlist* termjunk) {
-    termlist* next;
+    termlist* next = NULL;
 
     while (termjunk != NULL) {
         next = termjunk->next;
@@ -191,4 +194,139 @@ void freeTermList(termlist* termjunk) {
     }
 }
 
+atomlist* getQueryAtoms(formularlist* list){
+//    printf("0");
+    atomlist* query_list = NULL;
+	atomlist* tmp = NULL;
 
+    while (list != NULL){
+//        printf("1");
+        if(strcmp(list->data->head->predicate, "false") == 0){
+//			printf("2");
+			tmp = list->data->body;
+			query_list = addAtomListElem(query_list, tmp);
+        }
+//        printf("3");
+        list = list->next;
+    }
+//	printf("5");
+    return query_list;
+}
+
+formularlist* getDefiniteFormulars(formularlist* list){
+	formularlist* definite_list = NULL;
+	formularlist* tmp = NULL;
+
+	while (list != NULL){
+		if (strcmp(list->data->head->predicate, "false") != 0){
+			tmp = newFormularList(list->data);
+			definite_list = addFormularListElem(definite_list, tmp);
+		}
+		list = list->next;
+	}
+	return definite_list;
+}
+
+int checkSLDsatisfiable(atomlist* query_list, formularlist* definite_list){
+
+	if(query_list == NULL)
+		return 0;
+
+	atomlist* query_anchor = query_list;
+	formularlist* definite_anchor = definite_list;
+
+	atomlist* new_query_list = NULL;
+	formularlist* unifiable = NULL;
+
+	atomlist* tmp_atmlst = NULL;
+	formularlist* tmp_frmlst = NULL;
+
+
+	while (definite_list != NULL){
+		printf("check: %s | %s", query_list->data->predicate, definite_list->data->head->predicate);
+		if (strcmp(query_list->data->predicate, definite_list->data->head->predicate) == 0) {
+			printf(" <- true\n");
+			tmp_frmlst = newFormularList(definite_list->data);
+			unifiable = addFormularListElem(unifiable, tmp_frmlst);
+		} else {
+			printf("\n");
+		}
+		definite_list = definite_list->next;
+	}
+
+	if (unifiable != NULL) {
+		printf("\nUnifiable:\n");
+		printFormList(unifiable);
+
+		atomlist* body_anchor = NULL;
+
+		if(query_anchor->next != NULL)
+			printf("\nquery_anchor->next->data->predicate: %s", query_anchor->next->data->predicate);
+
+		new_query_list = query_anchor->next;
+
+		while (unifiable != NULL) {
+			body_anchor = unifiable->data->body;
+			while (body_anchor != NULL) {
+				if (strcmp(body_anchor->data->predicate, "true") != 0) {
+					tmp_atmlst = newAtomList(body_anchor->data);
+					new_query_list = addAtomListElem(new_query_list, tmp_atmlst);
+				}
+				body_anchor = body_anchor->next;
+			}
+			unifiable = unifiable->next;
+		}
+
+
+
+		printf("\nNew Query:\n");
+		if (new_query_list != NULL)
+			printAtomList(new_query_list);
+
+		printf(" --> checkSLDsatisfiable( ");
+		if (new_query_list != NULL)
+			printAtomList(new_query_list);
+		printf(", definite_list )\n");
+
+		if (checkSLDsatisfiable(new_query_list, definite_anchor) != 1)
+			return 0;
+		else
+			return 1;
+	}
+	return 1;
+};
+
+int countAtomListElem(atomlist* list){
+	int elements = 0;
+	while(list){
+		elements++;
+		list = list->next;
+	}
+	return elements;
+}
+
+int isAtomListEqual(atomlist* query, atomlist* new_query){
+	int query_elem = countAtomListElem(query);
+	int new_query_elem = countAtomListElem(new_query);
+
+	int equal_counter = 0;
+
+	if (query_elem != new_query_elem) {
+		printf("\nEqual-Counter: %d\n\n", equal_counter);
+		return 0;
+	} else {
+		while (query != NULL){
+			while (new_query != NULL){
+				if (strcmp(query->data->predicate, new_query->data->predicate) == 0)
+					equal_counter++;
+				new_query = new_query->next;
+			}
+			query = query->next;
+		}
+		printf("Equal-Counter: %d\n", equal_counter);
+		if(query_elem != equal_counter)
+			return 0;
+	}
+
+	return 1;
+}

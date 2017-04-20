@@ -1,5 +1,8 @@
 %{
-	#include "hornres.h"
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include "hornres.h"
 
 	extern int yyerror(char * err);
 	extern int yylex(void);
@@ -103,8 +106,10 @@ term: VORF					{printf("found term: %s\n", $<vorf>1);
 %%
 
 int main (int argc, char* argv[]){
+	int satisfied;
 
-	horn_anchor = NULL;
+	atomlist* query_list;
+	formularlist* definite_list;
 
 	if(argc > 1)
 		yyin = fopen(argv[1], "r");
@@ -122,5 +127,29 @@ int main (int argc, char* argv[]){
 	printf("\nComplete formular list: \n");
 	printFormList(horn_anchor);
 
-	freeFormList(horn_anchor);
+	printf("\nGetting query formulars\n\n");
+	query_list = getQueryAtoms(horn_anchor);
+	printf("Query list: \n");
+	if(!query_list){
+		printf("\n---> Formular unsatisfiable! <---");
+		return 0;
+	}
+	printAtomList(query_list);
+
+	printf("\n\nGetting definite formulars\n\n");
+	definite_list = getDefiniteFormulars(horn_anchor);
+	printf("Definite list:\n");
+	printFormList(definite_list);
+	printf("\n");
+
+	satisfied = checkSLDsatisfiable(query_list, definite_list);
+	if(satisfied == 0) {
+		printf("\n---> Formular unsatisfiable! <---");
+		return 0;
+	}
+
+	//freeFormList(horn_anchor);
+
+	printf("\n+--> Formular satisfiable! <--+");
+	return 0;
 }
