@@ -194,17 +194,17 @@ void freeTermList(termlist* termjunk) {
     }
 }
 
-atomlist* getQueryAtoms(formularlist* list){
+formularlist* getQueryFormulars(formularlist* list){
 //    printf("0");
-    atomlist* query_list = NULL;
-	atomlist* tmp = NULL;
+    formularlist* query_list 	= NULL;
+	formularlist* tmp 			= NULL;
 
     while (list != NULL){
 //        printf("1");
         if(strcmp(list->data->head->predicate, "false") == 0){
 //			printf("2");
-			tmp = list->data->body;
-			query_list = addAtomListElem(query_list, tmp);
+			tmp = newFormularList(list->data);
+			query_list = addFormularListElem(query_list, tmp);
         }
 //        printf("3");
         list = list->next;

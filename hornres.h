@@ -65,7 +65,7 @@ void freeFormList(formularlist* formlist);
 void freeAtomList(atomlist* junk);
 void freeTermList(termlist* junk);
 
-atomlist* getQueryAtoms(formularlist* list);
+formularlist* getQueryFormulars(formularlist* list);
 formularlist* getDefiniteFormulars(formularlist *list);
 
 int checkSLDsatisfiable(atomlist* query_list, formularlist* definite_list);
