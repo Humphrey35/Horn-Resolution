@@ -260,8 +260,8 @@ int checkSLDsatisfiable(atomlist* query_list, formularlist* definite_list){
 
 		atomlist* body_anchor = NULL;
 
-		if(query_anchor->next != NULL)
-			printf("\nquery_anchor->next->data->predicate: %s", query_anchor->next->data->predicate);
+//		if(query_anchor->next != NULL)
+//			printf("\nquery_anchor->next->data->predicate: %s", query_anchor->next->data->predicate);
 
 		new_query_list = query_anchor->next;
 
@@ -286,7 +286,7 @@ int checkSLDsatisfiable(atomlist* query_list, formularlist* definite_list){
 		printf(" --> checkSLDsatisfiable( ");
 		if (new_query_list != NULL)
 			printAtomList(new_query_list);
-		printf(", definite_list )\n");
+		printf(", definite_list )\n+--------------------------------------------------------------------+\n");
 
 		if (checkSLDsatisfiable(new_query_list, definite_anchor) != 1)
 			return 0;
