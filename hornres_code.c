@@ -260,13 +260,9 @@ int checkSLDsatisfiable(atomlist* query_list, formularlist* definite_list){
 
 		atomlist* body_anchor = NULL;
 
-//		if(query_anchor->next != NULL)
-//			printf("\nquery_anchor->next->data->predicate: %s", query_anchor->next->data->predicate);
-
-		new_query_list = query_anchor->next;
-
 		while (unifiable != NULL) {
 			body_anchor = unifiable->data->body;
+			new_query_list = query_anchor->next;
 			while (body_anchor != NULL) {
 				if (strcmp(body_anchor->data->predicate, "true") != 0) {
 					tmp_atmlst = newAtomList(body_anchor->data);
@@ -274,24 +270,21 @@ int checkSLDsatisfiable(atomlist* query_list, formularlist* definite_list){
 				}
 				body_anchor = body_anchor->next;
 			}
+
+			printf("\nNew Query:\n");
+			if (new_query_list != NULL)
+				printAtomList(new_query_list);
+
+			printf(" --> checkSLDsatisfiable( ");
+			if (new_query_list != NULL)
+				printAtomList(new_query_list);
+			printf(", definite_list )\n+--------------------------------------------------------------------+\n");
+
+			if (checkSLDsatisfiable(new_query_list, definite_anchor) != 1)
+				return 0;
+
 			unifiable = unifiable->next;
 		}
-
-
-
-		printf("\nNew Query:\n");
-		if (new_query_list != NULL)
-			printAtomList(new_query_list);
-
-		printf(" --> checkSLDsatisfiable( ");
-		if (new_query_list != NULL)
-			printAtomList(new_query_list);
-		printf(", definite_list )\n+--------------------------------------------------------------------+\n");
-
-		if (checkSLDsatisfiable(new_query_list, definite_anchor) != 1)
-			return 0;
-		else
-			return 1;
 	}
 	return 1;
 };
