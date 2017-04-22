@@ -50,6 +50,13 @@ list: /* Empty */
 							 printf("added formlist\n");
 							 printFormList(horn_anchor);
 							 printf("\n\n");}
+	| form					{printf("new formlist\n");
+							 $<formlist>$ = newFormularList( $<form>1 );
+							 printf("add formlist element\n");
+							 horn_anchor = addFormularListElem( horn_anchor, $<formlist>$ );
+							 printf("added formlist\n");
+							 printFormList(horn_anchor);
+							 printf("\n\n");};
 	| NEWLINE list			{}
 	| error NEWLINE list	{printf("Formular not regognized!\n");}
 
