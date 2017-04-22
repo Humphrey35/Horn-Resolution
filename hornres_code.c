@@ -227,57 +227,65 @@ formularlist* getDefiniteFormulars(formularlist* list){
 	return definite_list;
 }
 
-int checkSLDsatisfiable(atomlist* query_list, formularlist* definite_list){
+int checkSLDsatisfiable(atomlist* query_body, formularlist* definite_list){
 
-	if(query_list == NULL)
+	if(query_body == NULL || strcmp(query_body->data->predicate, "true") == 0)
 		return 0;
+	else {
+		atomlist* query_anchor = query_body;
+		formularlist* definite_anchor = definite_list;
 
-	atomlist* query_anchor = query_list;
-	formularlist* definite_anchor = definite_list;
+		atomlist* new_query_list = NULL;
+		formularlist* unifiable = NULL;
 
-	atomlist* new_query_list = NULL;
-	formularlist* unifiable = NULL;
-
-	atomlist* tmp_atmlst = NULL;
-	formularlist* tmp_frmlst = NULL;
+		atomlist* tmp_atmlst = NULL;
+		formularlist* tmp_frmlst = NULL;
 
 
-	while (definite_list != NULL){
-		printf("check: %s | %s", query_list->data->predicate, definite_list->data->head->predicate);
-		if (strcmp(query_list->data->predicate, definite_list->data->head->predicate) == 0) {
-			printf(" <- true\n");
-			tmp_frmlst = newFormularList(definite_list->data);
-			unifiable = addFormularListElem(unifiable, tmp_frmlst);
-		} else {
-			printf("\n");
+		while (definite_list != NULL){
+			printf("check: %s | %s", query_body->data->predicate, definite_list->data->head->predicate);
+			if (strcmp(query_body->data->predicate, definite_list->data->head->predicate) == 0) {
+				printf(" <- true\n");
+				tmp_frmlst = newFormularList(definite_list->data);
+				unifiable = addFormularListElem(unifiable, tmp_frmlst);
+			} else {
+				printf("\n");
+			}
+			definite_list = definite_list->next;
 		}
-		definite_list = definite_list->next;
-	}
 
-	if (unifiable != NULL) {
 		printf("\nUnifiable:\n");
-		printFormList(unifiable);
+		if (unifiable != NULL)
+			printFormList(unifiable);
+		else
+			printf("{}\n");
 
 		atomlist* body_anchor = NULL;
 
-		while (unifiable != NULL) {
-			body_anchor = unifiable->data->body;
-			new_query_list = query_anchor->next;
-			while (body_anchor != NULL) {
-				if (strcmp(body_anchor->data->predicate, "true") != 0) {
-					tmp_atmlst = newAtomList(body_anchor->data);
-					new_query_list = addAtomListElem(new_query_list, tmp_atmlst);
+		while (unifiable != NULL){
+			if (unifiable != NULL) {
+				body_anchor = unifiable->data->body;
+				new_query_list = query_anchor->next;
+				while (body_anchor != NULL) {
+					if (strcmp(body_anchor->data->predicate, "true") != 0) {
+						tmp_atmlst = newAtomList(body_anchor->data);
+						new_query_list = addAtomListElem(new_query_list, tmp_atmlst);
+					}
+					body_anchor = body_anchor->next;
 				}
-				body_anchor = body_anchor->next;
 			}
 
 			printf("\nNew Query:\n");
 			if (new_query_list != NULL)
 				printAtomList(new_query_list);
+			else
+				printf("{}\n");
 
 			printf(" --> checkSLDsatisfiable( ");
 			if (new_query_list != NULL)
 				printAtomList(new_query_list);
+			else
+				printf("{}");
 			printf(", definite_list )\n+--------------------------------------------------------------------+\n");
 
 			if (checkSLDsatisfiable(new_query_list, definite_anchor) != 1)
@@ -285,40 +293,42 @@ int checkSLDsatisfiable(atomlist* query_list, formularlist* definite_list){
 
 			unifiable = unifiable->next;
 		}
+		return 1;
 	}
-	return 1;
+
 };
 
-int countAtomListElem(atomlist* list){
-	int elements = 0;
-	while(list){
-		elements++;
-		list = list->next;
-	}
-	return elements;
-}
+int checkSETsatisfiable(formularlist* horn_anchor){
 
-int isAtomListEqual(atomlist* query, atomlist* new_query){
-	int query_elem = countAtomListElem(query);
-	int new_query_elem = countAtomListElem(new_query);
+	formularlist* query_list = NULL;
+	formularlist* definite_list = NULL;
 
-	int equal_counter = 0;
+	printf("\n\tGetting query formulars\n\n");
+	query_list = getQueryFormulars(horn_anchor);
+	printf("Query list: \n");
+	if (query_list != NULL)
+		printFormList(query_list);
+	else
+		printf("{}");
+	printf("\n");
 
-	if (query_elem != new_query_elem) {
-		printf("\nEqual-Counter: %d\n\n", equal_counter);
-		return 0;
-	} else {
-		while (query != NULL){
-			while (new_query != NULL){
-				if (strcmp(query->data->predicate, new_query->data->predicate) == 0)
-					equal_counter++;
-				new_query = new_query->next;
-			}
-			query = query->next;
-		}
-		printf("Equal-Counter: %d\n", equal_counter);
-		if(query_elem != equal_counter)
+	printf("\n\tGetting definite formulars\n\n");
+	definite_list = getDefiniteFormulars(horn_anchor);
+	printf("Definite list:\n");
+	if(definite_list != NULL)
+		printFormList(definite_list);
+	else
+		printf("{}");
+	printf("\n");
+
+	while (query_list != NULL){
+		printf("\nChecking query: \n");
+		printAtomList(query_list->data->body);
+		printf(" -> false\n\n");
+		printf("+--------------------------------------------------------------------+\n");
+		if (checkSLDsatisfiable(query_list->data->body, definite_list) != 1)
 			return 0;
+		query_list = query_list->next;
 	}
 
 	return 1;

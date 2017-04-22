@@ -108,9 +108,6 @@ term: VORF					{printf("found term: %s\n", $<vorf>1);
 int main (int argc, char* argv[]){
 	int satisfied;
 
-	formularlist* query_list;
-	formularlist* definite_list;
-
 	if(argc > 1)
 		yyin = fopen(argv[1], "r");
 	else
@@ -127,22 +124,7 @@ int main (int argc, char* argv[]){
 	printf("\nComplete formular list: \n");
 	printFormList(horn_anchor);
 
-	printf("\nGetting query formulars\n\n");
-	query_list = getQueryFormulars(horn_anchor);
-	printf("Query list: \n");
-	if(!query_list){
-		printf("\n---> Formular unsatisfiable! <---");
-		return 0;
-	}
-	printFormList(query_list);
-
-	printf("\nGetting definite formulars\n\n");
-	definite_list = getDefiniteFormulars(horn_anchor);
-	printf("Definite list:\n");
-	printFormList(definite_list);
-	printf("\n");
-
-	satisfied = checkSLDsatisfiable(query_list->data->body, definite_list);
+	satisfied = checkSETsatisfiable(horn_anchor);
 	if(satisfied == 0) {
 		printf("\n---> Formular unsatisfiable! <---");
 		return 0;

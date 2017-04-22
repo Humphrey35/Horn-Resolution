@@ -69,5 +69,4 @@ formularlist* getQueryFormulars(formularlist* list);
 formularlist* getDefiniteFormulars(formularlist *list);
 
 int checkSLDsatisfiable(atomlist* query_list, formularlist* definite_list);
-int countAtomListElem(atomlist* list);
-int isAtomListEqual(atomlist* query, atomlist* new_query);
+int checkSETsatisfiable(formularlist* horn_anchor);
