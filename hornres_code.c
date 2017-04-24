@@ -6,6 +6,9 @@
 #include <string.h>
 #include "hornres.h"
 
+extern int var_count;
+extern int line;
+
 int yyerror(char* err){
     printf("Error: %s\n", err);
     exit(-1);
@@ -281,13 +284,8 @@ int checkSLDsatisfiable(atomlist* query_body, formularlist* definite_list){
 			else
 				printf("{}\n");
 
-			printf(" --> checkSLDsatisfiable( ");
-			if (new_query_list != NULL)
-				printAtomList(new_query_list);
-			else
-				printf("{}");
-			printf(", definite_list )\n+--------------------------------------------------------------------+\n");
-
+			printf(" --> checkSLDsatisfiable()""\n+--------------------------------------------------------------------+\n");
+			getchar();
 			if (checkSLDsatisfiable(new_query_list, definite_anchor) != 1)
 				return 0;
 
@@ -326,10 +324,71 @@ int checkSETsatisfiable(formularlist* horn_anchor){
 		printAtomList(query_list->data->body);
 		printf(" -> false\n\n");
 		printf("+--------------------------------------------------------------------+\n");
+		getchar();
 		if (checkSLDsatisfiable(query_list->data->body, definite_list) != 1)
 			return 0;
 		query_list = query_list->next;
 	}
 
 	return 1;
+}
+
+varlist* newVar(char* var, varlist* anchor){
+	char* buffer;
+	varlist* tmp = anchor;
+
+//	printf("Compare Vars:\n");
+	while(tmp != NULL ) {
+//		printf("%s | %s", tmp->var, var);
+		if (strcmp(tmp->var, var) == 0 && tmp->line == line) {
+//			printf(" <- true\n");
+			return anchor;
+		}
+//		printf("\n");
+		tmp = tmp->next;
+	}
+
+	var_count++;
+	varlist* new_varlist = xmalloc(sizeof(varlist));
+//	printf("\tnewVar %s %p --> %p\n", var, anchor, new_varlist);
+	new_varlist->var = xstrdup(var);
+	new_varlist->var_count = var_count;
+	new_varlist->line = line;
+
+	buffer = xmalloc(sizeof(char)+ sizeof(int));
+	sprintf(buffer, "v%d", new_varlist->var_count);
+
+	new_varlist->new_name = xstrdup(buffer);
+	free(buffer);
+
+	new_varlist->next = anchor;
+	anchor = new_varlist;
+
+	return new_varlist;
+}
+
+char* varRename(char* var, varlist* anchor){
+
+	while (anchor != NULL){
+		if(strcmp(anchor->var, var) == 0){
+			break;
+		}
+		anchor = anchor->next;
+	}
+
+	return anchor->new_name;
+}
+
+void printVarList(varlist* anchor){
+	char* buffer = xmalloc(sizeof(char)+ sizeof(int));
+
+	printf("\nVar-List:\n");
+
+	while(anchor != NULL){
+		printf("%s ---> %s\n", anchor->var, anchor->new_name);
+		anchor = anchor->next;
+	}
+	printf("\n");
+
+	free(buffer);
 }

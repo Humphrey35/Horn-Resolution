@@ -23,9 +23,12 @@ VAR        [n-z]{DIGIT}*
 "true" {return TRUE;}
 "false" {return FALSE;}
 
-{VAR} {yylval.vorf = strdup(yytext); return VORF;}
-{FUNC} {yylval.vorf = strdup(yytext); return VORF;}
-{PRED} {yylval.pred = strdup(yytext); return PRED;}
+{VAR} 	{yylval.var = strdup(yytext);
+		return VAR;}
+{FUNC} 	{yylval.func = strdup(yytext);
+		return FUNC;}
+{PRED} 	{yylval.pred = strdup(yytext);
+		return PRED;}
 
 [ ] { /* Skip  whitespace*/ }
 

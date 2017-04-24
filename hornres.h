@@ -31,6 +31,14 @@ typedef struct formularlist {
     formular* data;
     struct formularlist* next;
 } formularlist;
+
+typedef struct varlist {
+	char* var;
+	char* new_name;
+	int var_count;
+	int line;
+	struct varlist* next;
+} varlist;
 /*---------------------------------------------------------------------------*/
 
 int yyerror(char* err);
@@ -54,6 +62,11 @@ formularlist* newFormularList(formular* data);
 termlist* addTermListElem(termlist* anchor, termlist* next);
 atomlist* addAtomListElem(atomlist* anchor, atomlist* next);
 formularlist* addFormularListElem(formularlist* anchor, formularlist* next);
+
+
+varlist* newVar(char* var, varlist* anchor);
+void printVarList(varlist* anchor);
+char* varRename(char* var, varlist* anchor);
 
 
 void printFormList(formularlist* formlist);

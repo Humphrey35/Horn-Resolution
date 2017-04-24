@@ -9,10 +9,14 @@
 	extern FILE *yyin;
 
 	formularlist* horn_anchor;
+	varlist* global_vars;
+	int var_count = 0;
+	int line = 0;
 %}
 
 %union {
-	char* 		vorf;
+	char* 		var;
+	char*		func;
 	char*		pred;
 
 	term*		term;
@@ -35,7 +39,8 @@
 %token NEWLINE
 %token TRUE
 %token FALSE
-%token VORF
+%token VAR
+%token FUNC
 %token PRED
 %token ERROR
 
@@ -43,71 +48,89 @@
 %%
 
 list: /* Empty */
-	| form NEWLINE list		{printf("new formlist\n");
+	| form NEWLINE list		{//printf("new formlist\n");
 							 $<formlist>$ = newFormularList( $<form>1 );
-							 printf("add formlist element\n");
+							 //printf("add formlist element\n");
 							 horn_anchor = addFormularListElem( horn_anchor, $<formlist>$ );
-							 printf("added formlist\n");
-							 printFormList(horn_anchor);
-							 printf("\n\n");}
-	| form					{printf("new formlist\n");
+							 //printf("added formlist\n");
+							 //printFormList(horn_anchor);
+							 //printf("\n\n");
+							}
+	| form					{//printf("new formlist\n");
 							 $<formlist>$ = newFormularList( $<form>1 );
-							 printf("add formlist element\n");
+							 //printf("add formlist element\n");
 							 horn_anchor = addFormularListElem( horn_anchor, $<formlist>$ );
-							 printf("added formlist\n");
-							 printFormList(horn_anchor);
-							 printf("\n\n");};
+							 //printf("added formlist\n");
+							 //printFormList(horn_anchor);
+							 //printf("\n\n");
+							}
 	| NEWLINE list			{}
-	| error NEWLINE list	{printf("Formular not regognized!\n");}
+	| error NEWLINE list	{printf("Formular not recognized!\n");}
 
-form: body JUNC head		{printf("found formular");
+form: body JUNC head		{//printf("found formular");
 							 $<form>$ = newFormular( $<atom>3, $<atomlist>1);
-							 printf("\nnew formular!\n\n");}
+							 //printf("\nnew formular!\n\n");
+							 line++;}
 
 head: atom					{/*printf("found atom: ", $<pred>1);
 							 printAtom($<atom>$);*/}
-	| FALSE					{printf("found atom: ");
+	| FALSE					{//printf("found atom: ");
 							 $<atom>$ = newAtom( xstrdup("false"), NULL);
-							 printAtom($<atom>$);
-						 	 printf("\nnew atom\n\n");}
+							 //printAtom($<atom>$);
+						 	 //printf("\nnew atom\n\n");
+							}
 
-body: atom					{printf("atomlist: ");
+body: atom					{//printf("atomlist: ");
 							 $<atomlist>$ = newAtomList( $<atom>1 );
-							 printAtomList($<atomlist>$);
-						 	 printf("\nnew atomlist\n\n");}
-	| TRUE					{printf("atomlist: ");
+							 //printAtomList($<atomlist>$);
+						 	 //printf("\nnew atomlist\n\n");
+							}
+	| TRUE					{//printf("atomlist: ");
 							 $<atomlist>$ = newAtomList( newAtom( xstrdup("true"), NULL ));
-							 printf("\nnew atomlist\n\n");}
-	| atom AND body			{printf("atomlist: ");
+							 //printf("\nnew atomlist\n\n");
+							}
+	| atom AND body			{//printf("atomlist: ");
 							 $<atomlist>$ = newAtomList( $<atom>1 );
 						 	 $<atomlist>$ = addAtomListElem( $<atomlist>3, $<atomlist>$ );
-						 	 printAtomList($<atomlist>$);
-						 	 printf("\nadded atomlist\n\n");}
+						 	 //printAtomList($<atomlist>$);
+						 	 //printf("\nadded atomlist\n\n");
+							}
 
 atom:
-	PRED					{printf("found atom: %s", $<pred>1);
+	PRED					{//printf("found atom: %s", $<pred>1);
 							 $<atom>$ = newAtom( $<pred>1, NULL);
-						 	 printf("\nnew atom\n\n");}
-	| PRED OB terms CB		{printf("found atom(termlist): %s", $<pred>1);
+						 	 //printf("\nnew atom\n\n");
+							}
+	| PRED OB terms CB		{//printf("found atom(termlist): %s", $<pred>1);
 							 $<atom>$ = newAtom( $<pred>1, $<termlist>3 );
-						 	 printf("\nnew atom\n\n");}
+						 	 //printf("\nnew atom\n\n");
+							}
 
-terms: term					{printf("termlist: ");
+terms: term					{//printf("termlist: ");
 							 $<termlist>$ = newTermList( $<term>1 );
-							 printTermList($<termlist>$);
-							 printf("\nnew termlist\n\n");}
-	|term COMMA terms		{printf("term, termlist: ");
+							 //printTermList($<termlist>$);
+							 //printf("\nnew termlist\n\n");
+							}
+	|term COMMA terms		{//printf("term, termlist: ");
 							 $<termlist>$ = newTermList( $<term>1 );
 							 $<termlist>$ = addTermListElem( $<termlist>3, $<termlist>$ );
-						 	 printTermList($<termlist>$);
-						 	 printf("\nadded termlist\n\n");}
+						 	 //printTermList($<termlist>$);
+						 	 //printf("\nadded termlist\n\n");
+							}
 
-term: VORF					{printf("found term: %s\n", $<vorf>1);
-							 $<term>$ = newTerm( $<vorf>1, NULL );
-						 	 printf("new term\n\n");}
-	| VORF OB terms	CB		{printf("found term(termlist): %s\n", $<vorf>1);
-							 $<term>$ = newTerm( $<vorf>1, $<termlist>3 );
-						 	 printf("new term\n\n");}
+term: VAR					{//printf("found var: %s\n", $<var>1);
+							 global_vars = newVar($<var>1, global_vars);
+							 $<term>$ = newTerm( varRename($<var>1, global_vars), NULL );
+						 	 //printf("new term\n\n");
+							}
+	| FUNC					{//printf("found func: %s\n", $<func>1);
+							 $<term>$ = newTerm( $<func>1, NULL );
+							 //printf("new term\n\n");
+							}
+	| FUNC OB terms	CB		{//printf("found func(termlist): %s\n", $<func>1);
+							 $<term>$ = newTerm( $<func>1, $<termlist>3 );
+						 	 //printf("new term\n\n");
+							}
 
 
 %%
@@ -124,6 +147,9 @@ int main (int argc, char* argv[]){
 	do{
 		yyparse();
 	} while (!feof(yyin));
+
+	printf("\n\tFinished parsing!\n");
+	printVarList(global_vars);
 
 	if (argc > 1)
 		fclose(yyin);

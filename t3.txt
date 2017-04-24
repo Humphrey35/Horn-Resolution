@@ -1,2 +1,3 @@
-true -> false
-A -> false
+A -> B
+B -> false
+true -> A
