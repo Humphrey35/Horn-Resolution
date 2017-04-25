@@ -2,7 +2,8 @@
 %option noyywrap
 
 %{
-	#include "hornres.h"
+	#include <string.h>
+	#include "hornres_data_strct.h"
 	#include "hornres.tab.h"
 %}
 

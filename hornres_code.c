@@ -1,107 +1,11 @@
 //
 // Created by Hans Potsch on 18.04.17.
 //
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "hornres.h"
+
+#include "hornres_code.h"
 
 extern int var_count;
 extern int line;
-
-int yyerror(char* err){
-    printf("Error: %s\n", err);
-    exit(-1);
-}
-
-void* xmalloc(size_t size){
-    void *mem = malloc(size);
-    if(!mem)
-    {
-        fprintf(stderr, "Out of memory\n");
-        exit(EXIT_FAILURE);
-    }
-    return mem;
-}
-char* xstrdup(char* str){
-    void* newstr = strdup(str);
-    if(!newstr)
-    {
-        fprintf(stderr, "Out of memory\n");
-        exit(EXIT_FAILURE);
-    }
-    return newstr;
-}
-
-term* newTerm(char* payload, termlist* arguments){
-    term* new_term = (term *)xmalloc(sizeof(term));
-
-    new_term->varorfunc = xstrdup(payload);
-    new_term->arguments = arguments;
-
-    return new_term;
-}
-termlist* newTermList(term* data){
-    termlist* new_termlist = xmalloc(sizeof(termlist));
-
-    new_termlist->data = data;
-    new_termlist->next = NULL;
-
-    return new_termlist;
-}
-
-atom* newAtom(char* payload, termlist* arguments){
-    atom* new_atom = xmalloc(sizeof(atom));
-
-    new_atom->predicate = strdup(payload);
-    new_atom->arguments = arguments;
-
-    return new_atom;
-}
-atomlist* newAtomList(atom* data){
-    atomlist* new_atomlist = xmalloc(sizeof(atomlist));
-
-    new_atomlist->data = data;
-    new_atomlist->next = NULL;
-
-    return new_atomlist;
-}
-
-formular* newFormular(atom* head, atomlist* body){
-    formular* new_formular = xmalloc(sizeof(formular));
-
-    new_formular->head = head;
-    new_formular->body = body;
-
-    return new_formular;
-}
-formularlist* newFormularList(formular* data){
-    formularlist* new_formularlist = xmalloc(sizeof(formularlist));
-
-    new_formularlist->data = data;
-    new_formularlist->next = NULL;
-
-    return new_formularlist;
-}
-
-termlist* addTermListElem(termlist* anchor, termlist* new_termlist){
-    new_termlist->next = anchor;
-    anchor = new_termlist;
-
-    return new_termlist;
-}
-atomlist* addAtomListElem(atomlist* anchor, atomlist* new_atomlist){
-    new_atomlist->next = anchor;
-    anchor = new_atomlist;
-
-    return new_atomlist;
-}
-formularlist* addFormularListElem(formularlist* anchor, formularlist* new_formularlist){
-    new_formularlist->next = anchor;
-    anchor = new_formularlist;
-
-    return new_formularlist;
-}
 
 void printFormList(formularlist* formlist){
     if(formlist->data->body != NULL && formlist->data->head != NULL) {
@@ -198,21 +102,16 @@ void freeTermList(termlist* termjunk) {
 }
 
 formularlist* getQueryFormulars(formularlist* list){
-//    printf("0");
     formularlist* query_list 	= NULL;
 	formularlist* tmp 			= NULL;
 
     while (list != NULL){
-//        printf("1");
         if(strcmp(list->data->head->predicate, "false") == 0){
-//			printf("2");
 			tmp = newFormularList(list->data);
 			query_list = addFormularListElem(query_list, tmp);
         }
-//        printf("3");
         list = list->next;
     }
-//	printf("5");
     return query_list;
 }
 
@@ -333,41 +232,7 @@ int checkSETsatisfiable(formularlist* horn_anchor){
 	return 1;
 }
 
-varlist* newVar(char* var, varlist* anchor){
-	char* buffer;
-	varlist* tmp = anchor;
-
-//	printf("Compare Vars:\n");
-	while(tmp != NULL ) {
-//		printf("%s | %s", tmp->var, var);
-		if (strcmp(tmp->var, var) == 0 && tmp->line == line) {
-//			printf(" <- true\n");
-			return anchor;
-		}
-//		printf("\n");
-		tmp = tmp->next;
-	}
-
-	var_count++;
-	varlist* new_varlist = xmalloc(sizeof(varlist));
-//	printf("\tnewVar %s %p --> %p\n", var, anchor, new_varlist);
-	new_varlist->var = xstrdup(var);
-	new_varlist->var_count = var_count;
-	new_varlist->line = line;
-
-	buffer = xmalloc(sizeof(char)+ sizeof(int));
-	sprintf(buffer, "v%d", new_varlist->var_count);
-
-	new_varlist->new_name = xstrdup(buffer);
-	free(buffer);
-
-	new_varlist->next = anchor;
-	anchor = new_varlist;
-
-	return new_varlist;
-}
-
-char* varRename(char* var, varlist* anchor){
+char* varRename(char* var, varList_elem* anchor){
 
 	while (anchor != NULL){
 		if(strcmp(anchor->var, var) == 0){
@@ -379,7 +244,7 @@ char* varRename(char* var, varlist* anchor){
 	return anchor->new_name;
 }
 
-void printVarList(varlist* anchor){
+void printVarList(varList_elem* anchor){
 	char* buffer = xmalloc(sizeof(char)+ sizeof(int));
 
 	printf("\nVar-List:\n");
@@ -392,3 +257,30 @@ void printVarList(varlist* anchor){
 
 	free(buffer);
 }
+
+atom* unify(atom* body_atom, atom* head){
+		return head;
+};
+
+void* checkAtomsEqual(atom* one, atom* two){
+	while (one != NULL && two != NULL){
+		if (strcmp(one->predicate, two->predicate) == 0){
+
+		} else {
+			return one->predicate;
+		}
+	}
+}
+
+uniList_elem* newUnification(char* var, term* unif){
+	uniList_elem* new_elem = xmalloc(sizeof(uniList_elem));
+
+	new_elem->var = xstrdup(var);
+	new_elem->unif = unif;
+
+	return new_elem;
+}
+
+uniList addUniElem(uniList* anchor, uniList* next){
+
+};

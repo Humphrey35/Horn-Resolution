@@ -1,15 +1,16 @@
 %{
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <string.h>
-    #include "hornres.h"
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <string.h>
+	#include "hornres_data_strct.h"
+	#include "hornres_code.h"
 
 	extern int yyerror(char * err);
 	extern int yylex(void);
 	extern FILE *yyin;
 
 	formularlist* horn_anchor;
-	varlist* global_vars;
+	varList_elem* global_vars;
 	int var_count = 0;
 	int line = 0;
 %}
@@ -167,4 +168,9 @@ int main (int argc, char* argv[]){
 
 	printf("\n+--> Formular satisfiable! <--+");
 	return 0;
+}
+
+int yyerror(char* err){
+	printf("Error: %s\n", err);
+	exit(-1);
 }
