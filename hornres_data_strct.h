@@ -59,7 +59,7 @@ typedef struct uniList_elem {
 
 typedef struct uniList {
 	uniList_elem* data;
-	struct unificator* next;
+	struct uniList* next;
 } uniList;
 
 

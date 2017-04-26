@@ -160,12 +160,14 @@ int main (int argc, char* argv[]){
 
 	satisfied = checkSETsatisfiable(horn_anchor);
 	if(satisfied == 0) {
+		printFormList(horn_anchor);
 		printf("\n---> Formular unsatisfiable! <---");
 		return 0;
 	}
 
 	//freeFormList(horn_anchor);
-
+	printf("\nFinal formular list: \n");
+	printFormList(horn_anchor);
 	printf("\n+--> Formular satisfiable! <--+");
 	return 0;
 }

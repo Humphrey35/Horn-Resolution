@@ -124,7 +124,7 @@ varList_elem* newVar(char* var, varList_elem* anchor){
 	new_varlist->line = line;
 
 	buffer = xmalloc(sizeof(char)+ sizeof(int));
-	sprintf(buffer, "v%d", new_varlist->var_count);
+	sprintf(buffer, "v-%d", new_varlist->var_count);
 
 	new_varlist->new_name = xstrdup(buffer);
 	free(buffer);
@@ -134,3 +134,19 @@ varList_elem* newVar(char* var, varList_elem* anchor){
 
 	return new_varlist;
 }
+
+uniList_elem* newUnification(char* var, term* unif){
+	uniList_elem* new_elem = xmalloc(sizeof(uniList_elem));
+
+	new_elem->var = xstrdup(var);
+	new_elem->unif = unif;
+
+	return new_elem;
+}
+
+uniList* addUniListElem(uniList* anchor, uniList* new_uni_l){
+	new_uni_l->next = anchor;
+	anchor->next = new_uni_l;
+
+	return new_uni_l;
+};

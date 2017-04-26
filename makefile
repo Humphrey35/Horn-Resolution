@@ -3,7 +3,7 @@ YACC= bison
 CC= gcc
 CFLAGS= -g
 
-all: hornres.tab.c hornres.tab.h lex.yy.c lex.yy.o hornres.tab.o hornres_data_strct.c hornres_code.o HornRes clean
+all: hornres.tab.c hornres.tab.h lex.yy.c lex.yy.o hornres.tab.o hornres_data_strct.c hornres_code.o HornRes
 
 hornres.tab.c hornres.tab.h: hornres.y
 	$(YACC) -d hornres.y
