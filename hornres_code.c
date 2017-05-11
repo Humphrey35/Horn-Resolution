@@ -143,9 +143,6 @@ int checkSLDsatisfiable(atomlist* query_body, formularlist* definite_list){
 		atomlist* tmp_atmlst = NULL;
 		formularlist* tmp_frmlst = NULL;
 
-		atom* sigma;
-
-
 		while (definite_list != NULL){
 			printf("check: ");
 			printAtom(query_body->data);
@@ -153,14 +150,14 @@ int checkSLDsatisfiable(atomlist* query_body, formularlist* definite_list){
 			printAtom(definite_list->data->head);
 //			printf("\n");
 
-			sigma = unify(query_body->data, definite_list->data->head);
+			atom* sigma = unify(query_body->data, definite_list->data->head);
 			if(sigma != NULL){
 				query_body->data = sigma;
 				definite_list->data->head = sigma;
 			}
 
 			if (checkAtomsEqual(query_body->data, definite_list->data->head)) {
-				printf("\t<- true\n");
+				printf("<- true\n");
 				tmp_frmlst = newFormularList(definite_list->data);
 				unifiable = addFormularListElem(unifiable, tmp_frmlst);
 			} else {
@@ -286,25 +283,31 @@ atom* unify(atom *query_body, atom* definite_head) {
 			sigma = newAtom(query_anchor->predicate, NULL);
 		}
 
-		if (query_anchor->arguments != NULL && definite_anchor->arguments != NULL){
+		if (query_anchor->arguments != NULL || definite_anchor->arguments != NULL){
 			sigma->arguments = unifyTermLists(query_anchor->arguments, definite_anchor->arguments);
 			if (sigma->arguments == NULL)
 				return NULL;
 		}
-		query_body = sigma;
-		definite_head = sigma;
+		//query_body = sigma;
+		//definite_head = sigma;
 	}
 
-	printf("\tUnified sigma = ");
+	printf(" Unified sigma = ");
 	if (sigma != NULL)
 		printAtom(sigma);
 	else
 		printf("NULL");
+
 	return sigma;
 };
 
 termlist* unifyTermLists(termlist* termlist1, termlist* termlist2){
-	printf("\t\tunifyTermLists %s | %s - ", termlist1->data->varorfunc, termlist2->data->varorfunc);
+	if(termlist1 != NULL || termlist2 != NULL)
+		printf("\tunifyTermLists %s | %s - ", termlist1->data->varorfunc, termlist2->data->varorfunc);
+	else
+		printf("\tunifyTermLists 0 | 0");
+
+
 	termlist* tmp;
 
 	if (termlist1 == NULL || termlist2 == NULL) {
@@ -312,17 +315,16 @@ termlist* unifyTermLists(termlist* termlist1, termlist* termlist2){
 	} else if (checkVar(termlist1->data->varorfunc) && checkVar(termlist2->data->varorfunc)){
 		printf("both Vars!");
 		tmp = newTermList(termlist2->data);
-		tmp->next = termlist2->next;
-		return tmp;
+		tmp->next = unifyTermLists(termlist1->next, termlist2->next);
+//		return tmp;
 	} else if (checkVar(termlist1->data->varorfunc)) {
 		printf("1 is Var");
 		if (checkSubterm(termlist1->data->varorfunc, termlist2->data->arguments)){
 			return NULL;
 		} else {
 			tmp = newTermList(termlist2->data);
-			if(termlist2->next != NULL)
-				tmp->next = termlist2->next;
-			return tmp;
+			tmp->next = unifyTermLists(termlist1->next, termlist2->next);
+//			return tmp;
 		}
 	} else if (checkVar(termlist2->data->varorfunc)) {
 		printf("2 is Var");
@@ -330,20 +332,20 @@ termlist* unifyTermLists(termlist* termlist1, termlist* termlist2){
 			return NULL;
 		} else {
 			tmp = newTermList(termlist1->data);
-			if(termlist1->next != NULL)
-				tmp->next = termlist1->next;
-			return tmp;
+			tmp->next = unifyTermLists(termlist1->next, termlist2->next);
+//			return tmp;
 		}
 	} else {
 		printf("both not Vars");
 		if(strcmp(termlist1->data->varorfunc, termlist2->data->varorfunc) == 0) {
 			tmp = newTermList(termlist1->data);
 			tmp->data->arguments = unifyTermLists(termlist1->data->arguments, termlist2->data->arguments);
-			return tmp;
+			tmp->next = unifyTermLists(termlist1->next, termlist2->next);
+//			return tmp;
 		} else
 			return NULL;
 	}
-
+	return tmp;
 }
 
 int checkSubterm(char *var, termlist* subterm){
